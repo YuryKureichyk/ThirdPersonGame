@@ -10,6 +10,7 @@ public class InputServes : MonoBehaviour
     
     public Vector2 MoveDirection => _actions.Player.Move.ReadValue<Vector2>();
 
+    public Vector2 LookDelta => _actions.Player.Look.ReadValue<Vector2>();
     private void Awake()
     {
         _actions = new InputSystem_Actions();

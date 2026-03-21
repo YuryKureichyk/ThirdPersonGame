@@ -1437,6 +1437,7 @@ GameObject:
   - component: {fileID: 1986588876}
   - component: {fileID: 1986588877}
   - component: {fileID: 1986588878}
+  - component: {fileID: 1986588879}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -1492,6 +1493,22 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1986588875}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9670d119943b574d91ea6dbbaf5f3d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMoveMouse
+  _inputServes: {fileID: 98846688}
+  _moveSpeed: 10
+  _gravity: -1
+  _mouseSensitivity: 0.1
+--- !u!114 &1986588879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1986588875}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c9a20497d3c49864da88c576c2d51c19, type: 3}
@@ -1499,7 +1516,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovie
   _inputServes: {fileID: 98846688}
   _moveSpeed: 10
-  _gravity: 0
+  _gravity: -1
+  _rotationSpeed: 10
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
