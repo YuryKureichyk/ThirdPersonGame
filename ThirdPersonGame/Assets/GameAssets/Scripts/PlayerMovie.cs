@@ -12,10 +12,12 @@ public class PlayerMovie : MonoBehaviour
     private CharacterController _characterController;
     private Vector3 _moveDirection;
     private float _moveDirectionY;
+    private Animator _animator;
 
     private void Awake()
     {
         _characterController = GetComponent<CharacterController>();
+        _animator = GetComponentInChildren<Animator>();
     }
 
     private void OnEnable()
@@ -26,6 +28,11 @@ public class PlayerMovie : MonoBehaviour
     private void OnDisable()
     {
         _inputServes.Jump -= OnJump;
+    }
+
+    private void Start()
+    {
+        _moveDirectionY = -2f;
     }
 
 
@@ -39,16 +46,35 @@ public class PlayerMovie : MonoBehaviour
     {
         if (_characterController.isGrounded)
         {
-            _moveDirectionY = 1;
+            _moveDirectionY = 10;
+
+            _animator.SetTrigger("Jump");
         }
-        
     }
 
     private void MovePlayer()
     {
-        _moveDirectionY = Mathf.Max(_gravity, _moveDirectionY + _gravity * Time.deltaTime);
-        var moveDirection = new Vector3(_inputServes.MoveDirection.x, _moveDirectionY, _inputServes.MoveDirection.y);
-        _characterController.Move(moveDirection * (Time.deltaTime * _moveSpeed));
+        if (_characterController.isGrounded && _moveDirectionY < 0)
+        {
+            _moveDirectionY = -2f;
+        }
+        else
+        {
+            _moveDirectionY += _gravity * Time.deltaTime;
+        }
+
+
+        Vector3 inputDir = new Vector3(_inputServes.MoveDirection.x, 0, _inputServes.MoveDirection.y);
+        if (inputDir.sqrMagnitude > 1f) inputDir.Normalize();
+
+
+        _animator.SetFloat("Speed", inputDir.magnitude);
+
+
+        Vector3 velocity = (inputDir * _moveSpeed);
+        velocity.y = _moveDirectionY;
+
+        _characterController.Move(velocity * Time.deltaTime);
     }
 
     private void RotatePlayer()

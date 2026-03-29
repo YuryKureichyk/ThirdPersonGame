@@ -32,7 +32,7 @@ public class GameUI : MonoBehaviour
 
     private void UpdateUI()
     {
-        if (_score != null)
+       
             _score.text = _scoreCoins.ToString();
     }
 }

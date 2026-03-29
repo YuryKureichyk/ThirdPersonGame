@@ -137,8 +137,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2c05a1f110e2504f8b9660864358734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
-  _speed: 5
-  _rotateSpeed: 100
+  _rotateSpeed: 1
   _shrinkDuration: 1
 --- !u!54 &7333217500131679993
 Rigidbody:
