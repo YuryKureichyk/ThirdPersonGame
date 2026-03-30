@@ -78,7 +78,7 @@ public class MainMenu : MonoBehaviour
 
     private async void LoadLevel(int level)
     {
-        _levelLoadIndicator.gameObject.SetActive(true); // к 16 дз добавть LoadBar
+        _levelLoadIndicator.gameObject.SetActive(true);
         await LevelManager.LoadAsync(level);
     }
 }
