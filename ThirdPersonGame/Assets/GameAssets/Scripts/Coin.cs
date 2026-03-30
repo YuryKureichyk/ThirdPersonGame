@@ -1,34 +1,36 @@
 using System;
 using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 
 
 public class Coin : MonoBehaviour
 {
-    [SerializeField] private float _speed = 5f;
-    [SerializeField] private float _rotateSpeed = 100f;
+    //[SerializeField] private float _speed = 5f;
+    [SerializeField] private float _rotateSpeed = 2f;
     [SerializeField] private float _shrinkDuration = 1f;
 
     public static event Action OnCoinCollected;
     private bool _isCollected = false;
 
-    void Start()
+    private void Start()
     {
-        StartCoroutine(DoRotate());
-        Destroy(gameObject, 10f);
+        transform.DORotate(new Vector3(0, 360, 0), _rotateSpeed, RotateMode.FastBeyond360)
+            .SetLoops(-1, LoopType.Incremental)
+            .SetEase(Ease.Linear);
+       // StartCoroutine(DoRotate());
+        //Destroy(gameObject, 10f);
     }
 
 
-    private IEnumerator DoRotate()
-    {
-        while (!_isCollected)
-        {
-            transform.Rotate(0, _rotateSpeed * Time.deltaTime, 0);
-            transform.Translate(Vector3.back * _speed * Time.deltaTime,
-                Space.World);
-            yield return null;
-        }
-    }
+   // private IEnumerator DoRotate()
+   //     while (!_isCollected)
+    //    {
+            //transform.Rotate(0, _rotateSpeed * Time.deltaTime, 0);
+            //transform.Translate(Vector3.back * _speed * Time.deltaTime, Space.World);
+     //       yield return null;
+      //  }
+   // }
 
     private void OnTriggerEnter(Collider other)
     {
