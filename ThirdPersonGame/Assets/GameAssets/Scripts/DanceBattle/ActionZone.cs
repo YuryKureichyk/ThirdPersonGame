@@ -10,6 +10,8 @@ namespace GameAssets.Scripts.DanceBattle
     {
         [SerializeField] private Image _ring;
         [SerializeField] private ActionZoneSettings _settings;
+        [SerializeField] private GameObject _sucessParticles;
+        [SerializeField] private GameObject _failParticles;
         private Tweener _tween;
         private Action _failed;
         private float _startTime;
@@ -42,6 +44,7 @@ namespace GameAssets.Scripts.DanceBattle
             _tween?.Kill();
             _tween = _ring.DOColor(Color.green, 0.3f)
                 .OnComplete(ResetSate);
+            _sucessParticles.SetActive(true);
         }
 
         public void PlayFailedAnimation()
@@ -49,10 +52,12 @@ namespace GameAssets.Scripts.DanceBattle
             _tween.Kill();
             _tween = _ring.DOColor(_settings.FailColor, _settings.FailDuration)
                                           .OnComplete(ResetSate);
+            _failParticles.SetActive(true);
         }
 
         private void Start()
         {
+            
             ResetSate();
         }
 
@@ -62,11 +67,14 @@ namespace GameAssets.Scripts.DanceBattle
             _ring.transform.localScale = new Vector3(1, 1, 1) * _settings.PlayScale.x;
             _ring.color = Color.white;
             _ring.gameObject.SetActive(false);
+            _failParticles.SetActive(false);
+            _sucessParticles.SetActive(false);
         }
 
 
         private void OnAnimationComplete()
         {
+            _failParticles.SetActive(true);
             IsFailed = true;
             _failed?.Invoke();
             

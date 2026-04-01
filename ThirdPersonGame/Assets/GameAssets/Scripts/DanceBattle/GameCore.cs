@@ -15,6 +15,7 @@ namespace GameAssets.Scripts.DanceBattle
         [SerializeField] private PlayerAnimator _animator;
         [SerializeField] private InputService _inputService;
         [SerializeField] private ActionZone[] _zones;
+        [SerializeField] private GameObject _particles;
 
         private Action[] _failHandlers;
 
@@ -57,7 +58,6 @@ namespace GameAssets.Scripts.DanceBattle
             }
 
             Invoke(nameof(ActivateNextZone), 1f);
-            
         }
 
         private void ActivateNextZone()
@@ -86,8 +86,12 @@ namespace GameAssets.Scripts.DanceBattle
                 _zones[clickedIndex].PlayPressedAnimation();
                 Score += ADD_SCORE_VALUE;
 
-                if (Score % SPECIAL_SCORE_VALUE == 0)
+                if (Score >= SPECIAL_SCORE_VALUE && Score % SPECIAL_SCORE_VALUE == 0)
+                {
+                    _particles.SetActive(false);
+                    _particles.SetActive(true);
                     _animator.PlaySpecial();
+                }
 
                 SwitchToNext();
             }
@@ -101,7 +105,7 @@ namespace GameAssets.Scripts.DanceBattle
 
         private void SwitchToNext()
         {
-            _currentZoneIndex =Random.Range(0, _zones.Length);
+            _currentZoneIndex = Random.Range(0, _zones.Length);
             Invoke(nameof(ActivateNextZone), 0.5f);
         }
     }
