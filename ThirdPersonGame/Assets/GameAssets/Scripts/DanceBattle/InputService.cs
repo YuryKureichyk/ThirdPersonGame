@@ -6,9 +6,9 @@ namespace GameAssets.Scripts.DanceBattle
 {
     public class InputService : MonoBehaviour
     {
-        private  InputSystem_Actions _actions;
+        private InputSystem_Actions _actions;
         public event Action<int> SpecialClick;
-        
+
         private void Awake()
         {
             _actions = new InputSystem_Actions();
@@ -20,8 +20,6 @@ namespace GameAssets.Scripts.DanceBattle
             _actions.Player.Special1.performed += OnSpecial1;
             _actions.Player.Special2.performed += OnSpecial2;
         }
-
-
 
 
         private void OnDisable()

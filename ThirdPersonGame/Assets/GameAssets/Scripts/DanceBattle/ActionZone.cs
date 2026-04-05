@@ -6,79 +6,75 @@ using UnityEngine.UI;
 namespace GameAssets.Scripts.DanceBattle
 {
     public class ActionZone : MonoBehaviour
-
     {
         [SerializeField] private Image _ring;
         [SerializeField] private ActionZoneSettings _settings;
         [SerializeField] private GameObject _sucessParticles;
         [SerializeField] private GameObject _failParticles;
-        private Tweener _tween;
-        private Action _failed;
-        private float _startTime;
+
+        public ActionZoneSettings Settings => _settings;
         public bool IsFailed { get; private set; }
 
+        private Tweener _tween;
+        private Action _onFailedCallback;
 
-        public void Init(Action failed)
+        public bool IsFree() => !_ring.gameObject.activeInHierarchy;
+
+        public void Init(Action onFailed) => _onFailedCallback = onFailed;
+
+        public void PlayStartAnimation(float targetAudioTime)
         {
-            _failed = failed;
+            StopCurrentTween();
+            ResetState();
+
+            _ring.gameObject.SetActive(true);
+            _tween = _ring.transform.DOScale(_settings.PlayScale.y, _settings.PlayDuration)
+                .SetEase(Ease.Linear)
+                .OnComplete(OnAnimationComplete);
         }
 
         public bool CheckReady()
         {
-           return (Time.time - _startTime > _settings.PlayThreshold) && !IsFailed;
-        }
+            if (IsFree() || IsFailed) return false;
 
-        [ContextMenu("PlayStartAnimation")]
-        public void PlayStartAnimation()
-        {
-            ResetSate();
-            _ring.gameObject.SetActive(true);
-            _startTime = Time.time;
-            _tween?.Kill();
-            _tween = _ring.transform.DOScale(_settings.PlayScale.y, _settings.PlayDuration)
-                .OnComplete(OnAnimationComplete);
+            float precision = Mathf.Abs(_ring.transform.localScale.x - _settings.PlayScale.y);
+            return precision < 0.25f;
         }
 
         public void PlayPressedAnimation()
         {
-            _tween?.Kill();
-            _tween = _ring.DOColor(Color.green, 0.3f)
-                .OnComplete(ResetSate);
+            StopCurrentTween();
             _sucessParticles.SetActive(true);
+            _ring.DOColor(Color.green, 0.3f).OnComplete(ResetState);
         }
 
         public void PlayFailedAnimation()
         {
-            _tween.Kill();
-            _tween = _ring.DOColor(_settings.FailColor, _settings.FailDuration)
-                                          .OnComplete(ResetSate);
+            StopCurrentTween();
             _failParticles.SetActive(true);
+            _ring.DOColor(_settings.FailColor, _settings.FailDuration).OnComplete(ResetState);
         }
 
-        private void Start()
-        {
-            
-            ResetSate();
-        }
+        private void Start() => ResetState();
 
-        private void ResetSate()
+        private void ResetState()
         {
             IsFailed = false;
-            _ring.transform.localScale = new Vector3(1, 1, 1) * _settings.PlayScale.x;
-            _ring.color = Color.white;
             _ring.gameObject.SetActive(false);
-            _failParticles.SetActive(false);
+            _ring.transform.localScale = Vector3.one * _settings.PlayScale.x;
+            _ring.color = Color.white;
             _sucessParticles.SetActive(false);
+            _failParticles.SetActive(false);
         }
 
+        private void StopCurrentTween() => _tween?.Kill();
 
         private void OnAnimationComplete()
         {
-            _failParticles.SetActive(true);
             IsFailed = true;
-            _failed?.Invoke();
-            
-            
+            _failParticles.SetActive(true);
+            _onFailedCallback?.Invoke();
+            DOVirtual.DelayedCall(0.2f, () => _ring.gameObject.SetActive(false));
         }
     }
 }

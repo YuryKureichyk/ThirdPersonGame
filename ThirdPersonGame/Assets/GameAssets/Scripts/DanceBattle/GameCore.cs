@@ -1,112 +1,148 @@
+using System.Linq;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Random = UnityEngine.Random;
-
 
 namespace GameAssets.Scripts.DanceBattle
 {
     public class GameCore : MonoBehaviour
-
     {
         private const int ADD_SCORE_VALUE = 10;
         private const int SPECIAL_SCORE_VALUE = 50;
+        private const float SPAWN_COOLDOWN = 0.3f;
 
+        [SerializeField] private GameUI _ui;
         [SerializeField] private PlayerAnimator _animator;
         [SerializeField] private InputService _inputService;
         [SerializeField] private ActionZone[] _zones;
         [SerializeField] private GameObject _particles;
+        [SerializeField] private TrackConfig _currentTrack;
+        [SerializeField] private AudioSource _audioSource;
 
-        private Action[] _failHandlers;
-
-        private int _score = 0;
-        private int _currentZoneIndex = 0;
-
+        private int _intervalIndex;
+        private float _lastSpawnTime;
+        private Statistics _stats;
+        private bool _isPaused;
+        private bool _isGameEnded;
 
         public event Action<int> ScoreChanged;
 
-        public int Score
-        {
-            get => _score;
-            set
-            {
-                _score = value;
-                ScoreChanged?.Invoke(value);
-            }
-        }
-
-        private void OnEnable()
-        {
-            _inputService.SpecialClick += OnSpecialClick;
-        }
-
-        private void OnDisable()
-        {
-            _inputService.SpecialClick -= OnSpecialClick;
-        }
+        private void OnEnable() => _inputService.SpecialClick += OnSpecialClick;
+        private void OnDisable() => _inputService.SpecialClick -= OnSpecialClick;
 
         private void Start()
         {
-            Score = 0;
+            if (SelectedTrackManager.Instance?.SelectedTrack != null)
+                _currentTrack = SelectedTrackManager.Instance.SelectedTrack;
 
-            _failHandlers = new Action[_zones.Length];
+            _intervalIndex = 0;
+            _ui.Init(this);
 
-            for (int i = 0; i < _zones.Length; i++)
+            if (_currentTrack != null && _audioSource != null)
             {
-                int zoneIndex = i;
-                _zones[i].Init(() => HandleFail(zoneIndex));
+                _stats = new Statistics(_currentTrack.Intervals.Count);
+                _audioSource.clip = _currentTrack.Audio;
+                _audioSource.Play();
             }
 
-            Invoke(nameof(ActivateNextZone), 1f);
+            foreach (var zone in _zones)
+                zone.Init(() => HandleFail(zone));
         }
 
-        private void ActivateNextZone()
+        private void Update()
         {
-            _zones[_currentZoneIndex].PlayStartAnimation();
-        }
+            // For tests
+            if (Keyboard.current?.kKey.wasPressedThisFrame == true) EndGame();
 
-        private void HandleFail(int index)
-        {
-            if (index == _currentZoneIndex)
+            if (_isGameEnded || _isPaused || _currentTrack == null) return;
+
+
+            if (_audioSource.time >= _audioSource.clip.length - 0.1f)
             {
-                _zones[index].PlayFailedAnimation();
-                Score = Math.Max(0, Score - ADD_SCORE_VALUE);
-                SwitchToNext();
+                EndGame();
+                return;
             }
+
+            if (_intervalIndex < _currentTrack.Intervals.Count)
+            {
+                float nextBeatTime = _currentTrack.Intervals[_intervalIndex];
+                float leadTime = _zones[0].Settings.PlayDuration;
+
+                if (_audioSource.time >= nextBeatTime - leadTime)
+                {
+                    if (Time.time - _lastSpawnTime > SPAWN_COOLDOWN)
+                    {
+                        TryActivateZone(nextBeatTime);
+                        _lastSpawnTime = Time.time;
+                    }
+
+                    _intervalIndex++;
+                }
+            }
+        }
+
+        private void TryActivateZone(float beatTime)
+        {
+            var freeZone = _zones.OrderBy(x => Random.value).FirstOrDefault(z => z.IsFree());
+            freeZone?.PlayStartAnimation(beatTime);
+        }
+
+        public void SetPauseState(bool paused)
+        {
+            _isPaused = paused;
+            if (paused) _audioSource.Pause();
+            else _audioSource.UnPause();
+        }
+
+        private void HandleFail(ActionZone zone)
+        {
+            _stats.RemovePoints(ADD_SCORE_VALUE);
+            zone.PlayFailedAnimation();
+            ScoreChanged?.Invoke(_stats.Score);
         }
 
         private void OnSpecialClick(int number)
         {
-            int clickedIndex = number - 1;
+            if (_isGameEnded || _isPaused) return;
 
-            if (clickedIndex != _currentZoneIndex) return;
+            int index = number - 1;
+            if (index < 0 || index >= _zones.Length) return;
 
-            if (_zones[clickedIndex].CheckReady())
+            ActionZone zone = _zones[index];
+
+            if (zone.CheckReady())
             {
-                _zones[clickedIndex].PlayPressedAnimation();
-                Score += ADD_SCORE_VALUE;
-
-                if (Score >= SPECIAL_SCORE_VALUE && Score % SPECIAL_SCORE_VALUE == 0)
-                {
-                    _particles.SetActive(false);
-                    _particles.SetActive(true);
-                    _animator.PlaySpecial();
-                }
-
-                SwitchToNext();
+                _stats.AddHit(ADD_SCORE_VALUE);
+                zone.PlayPressedAnimation();
+                CheckSpecialMove();
             }
             else
             {
-                _zones[clickedIndex].PlayFailedAnimation();
-                Score = Math.Max(0, Score - ADD_SCORE_VALUE);
-                SwitchToNext();
+                _stats.RemovePoints(ADD_SCORE_VALUE);
+                zone.PlayFailedAnimation();
+            }
+
+            ScoreChanged?.Invoke(_stats.Score);
+        }
+
+        private void CheckSpecialMove()
+        {
+            if (_stats.Score > 0 && _stats.Score % SPECIAL_SCORE_VALUE == 0)
+            {
+                _particles.SetActive(false);
+                _particles.SetActive(true);
+                _animator.PlaySpecial();
             }
         }
 
-        private void SwitchToNext()
+        private void EndGame()
         {
-            _currentZoneIndex = Random.Range(0, _zones.Length);
-            Invoke(nameof(ActivateNextZone), 0.5f);
+            if (_isGameEnded) return;
+            _isGameEnded = true;
+            _audioSource.Stop();
+            _ui.ShowResults(_stats.GetFormattedReport(), _stats.GetRank());
         }
     }
 }

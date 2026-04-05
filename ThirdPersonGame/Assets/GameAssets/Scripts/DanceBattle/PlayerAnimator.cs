@@ -10,20 +10,12 @@ namespace GameAssets.Scripts.DanceBattle
             AnimatorParameters.SpecialDance2
         };
 
-        private Animator _animator;
+        [SerializeField] private Animator _animator;
 
         public void PlaySpecial()
         {
-            if (_animator.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
-            {
-                _animator.SetTrigger(_specialDances[Random.Range(0, _specialDances.Length)]);
-            }
+            int randomIndex = Random.Range(0, _specialDances.Length);
+            _animator.SetTrigger(_specialDances[randomIndex]);
         }
-        private void Awake()
-        {
-            
-            _animator = GetComponent<Animator>();
-        }
-
     }
 }
