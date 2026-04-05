@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ActionZoneSettings
   m_EditorClassIdentifier: Assembly-CSharp::GameAssets.Scripts.DanceBattle.ActionZoneSettings
   _playDuration: 2
-  _playThreshold: 1.2
+  _playThreshold: 0.8
   _playScale: {x: 1.75, y: 0.8}
   _failColor: {r: 1, g: 0, b: 0, a: 0}
   _failDuration: 0.3
