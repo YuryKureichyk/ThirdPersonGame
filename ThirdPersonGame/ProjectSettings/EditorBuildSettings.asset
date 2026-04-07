@@ -6,11 +6,11 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/GameAssets/Scenes/EntryPoint.unity
-    guid: 141d3e9ced730394f8d587ab83a06656
+    path: Assets/GameAssets/Scenes/Menu.unity
+    guid: a81d261b713ffeb49a9de0a3ad57b722
   - enabled: 1
-    path: Assets/GameAssets/Scenes/Level1.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/GameAssets/Scenes/Dance.unity
+    guid: 5d35e230148d00145926a6e402633621
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

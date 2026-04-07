@@ -54035,7 +54035,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.88701963, b: 1, a: 0.58431375}
+  m_Color: {r: 0, g: 1, b: 1, a: 0.8901961}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -73800,6 +73800,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameAssets.Scripts.DanceBattle.ActionZone
   _ring: {fileID: 2869127424764667310}
   _settings: {fileID: 11400000, guid: c220a67d6ee15ba4897868ef28032a9b, type: 2}
+  _sucessParticles: {fileID: 0}
+  _failParticles: {fileID: 0}
 --- !u!1 &8317320456806122970
 GameObject:
   m_ObjectHideFlags: 0
